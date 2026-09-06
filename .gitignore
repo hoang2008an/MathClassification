@@ -10,6 +10,10 @@ wheels/
 .venv
 data
 
-my_tokenizer.model
-my_tokenizer.vocab
+# my_tokenizer.model
+# my_tokenizer.vocab
 training_text.txt
+/MathBERT_finetune
+model*
+*.model
+*.pt
