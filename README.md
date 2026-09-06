@@ -1,53 +1,39 @@
 # Math Question Multi-Label Classification
 
-A multi-label classifier that tags math questions/threads with one or more of four topics: **Algebra**, **Geometry**, **Number Theory**, **Combinatorics**.
+A multi-label text classifier that automatically tags mathematics problems with one or more of four core areas: **Algebra**, **Geometry**, **Number Theory**, and **Combinatorics**.
 
-## Problem Setup
+## Overview
 
-- **Input (X):** raw text, tokenized manually before feeding into the models
-- **Output (Y):** multi-hot label vector of shape `[n, 4]`
-- **Task type:** multi-label classification (non-mutually-exclusive)
+- **Input:** Raw mathematical text (LaTeX, forum posts).
+- **Output:** Multi-hot vector of shape `[n, 4]` (classes are non-mutually exclusive).
+- **Dataset:** Sourced from [AoPS Crawler](https://github.com/hoang2008an/Aops_Crawler).
+- **Tokenization:** SentencePiece (SPM) model trained on a 190MB text corpus extracted directly from the dataset.
 
-## Preprocessing
- 
-The dataset used for training/evaluation is sourced from [this repo](https://github.com/hoang2008an/Aops_Crawler).
- 
-Tokenization uses a custom vocabulary trained with **SentencePiece (SPM)** on a 190MB text corpus from the dataset.
-## Models Compared
+## Models
 
-| Model | Description |
-|---|---|
-| **XGBoost** | Gradient-boosted trees on sparse text features |
-| **LSTM** | Custom PyTorch LSTM handling variable-length sequences, trained on Colab |
-| **MathBERT** | [MathBERT](https://huggingface.co/tbs17/MathBERT) fine-tuned via Hugging Face `Trainer`, trained on Colab |
+| Model | Representation / Architecture | Notebook |
+|---|---|:---:|
+| **XGBoost** | TF-IDF features (n-gram baseline) | — |
+| **LSTM** | Custom PyTorch LSTM with SentencePiece embeddings | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/11Z1hxvwN6LVG1mC6Hx0y6iDFDRceNQR4?usp=sharing) |
+| **MathBERT** | Fine-tuned [`tbs17/MathBERT`](https://huggingface.co/tbs17/MathBERT) via Hugging Face `Trainer` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1SiXmUtuLf4ymV4njTwA__kA7EkJH1FHx?usp=sharing) |
 
-- LSTM training notebook: [Colab link](https://colab.research.google.com/drive/11Z1hxvwN6LVG1mC6Hx0y6iDFDRceNQR4?usp=sharing)
-- MathBERT fine-tuning notebook: [Colab link](https://colab.research.google.com/drive/1SiXmUtuLf4ymV4njTwA__kA7EkJH1FHx?usp=sharing)
+## Evaluation & Results
 
-## Evaluation Metrics
+Evaluated across per-label accuracy, sample-averaged Jaccard similarity, and F1 scores.
 
-- Per-label accuracy
-- Jaccard score (samples average)
-- F1 (micro & macro)
-- Precision / Recall (micro)
-
-## Results
-
-Each model was evaluated on its own test split, all large enough to give reliable estimates.
-
-| Metric | XGBoost | MathBERT | LSTM |
-|---|---|---|---|
+| Metric | XGBoost | LSTM | MathBERT |
+|---|:---:|:---:|:---:|
 | **Accuracy** | | | |
-| ├ Algebra | 0.921 | 0.927 | 0.922 |
-| ├ Number Theory | 0.921 | 0.926 | 0.915 |
-| ├ Geometry | 0.956 | 0.957 | 0.956 |
-| └ Combinatorics | 0.928 | 0.936 | 0.926 |
-| Jaccard (samples) | 0.847 | 0.875 | 0.861 |
-| F1 micro | 0.873 | 0.884 | 0.872 |
-| F1 macro | 0.860 | 0.873 | 0.858 |
-| Precision (micro) | 0.901 | 0.902 | 0.888 |
-| Recall (micro) | 0.848 | 0.867 | 0.857 |
+| ├ Algebra | 0.921 | 0.922 | **0.927** |
+| ├ Number Theory | 0.921 | 0.915 | **0.926** |
+| ├ Geometry | 0.956 | 0.956 | **0.957** |
+| └ Combinatorics | 0.928 | 0.926 | **0.936** |
+| **Jaccard (samples)** | 0.847 | 0.861 | **0.875** |
+| **F1 (micro)** | 0.873 | 0.872 | **0.884** |
+| **F1 (macro)** | 0.860 | 0.858 | **0.873** |
+| **Precision (micro)** | 0.901 | 0.888 | **0.902** |
+| **Recall (micro)** | 0.848 | 0.857 | **0.867** |
 
-**Takeaway:** All three models perform well and land in a similar range. In principle, MathBERT — a transformer pretrained specifically on mathematical text — should be able to get much closer to 100%, so the fact that it doesn't outperform XGBoost and LSTM by more suggests the ceiling here isn't really about model capacity, but about the data itself (e.g. label noise or inherent ambiguity between topics like algebra/number theory or geometry/combinatorics). This is backed up by manual inspection: several misclassified examples turned out to be mislabeled in the data itself. Given that, the far cheaper XGBoost is the more practical choice.
+### Key Takeaway
 
-
+All three models show nearly identical performance. Even with specialized pretraining, MathBERT fails to pull ahead of XGBoost or LSTM, indicating a data bottleneck rather than a modeling limitation. A quick error analysis confirmed frequent mislabeling and overlapping categories in the dataset (for instance, problems that mix modular arithmetic with algebraic manipulation). Because dirty data sets the ceiling here, XGBoost is the most sensible pick for production due to its minimal compute cost.
