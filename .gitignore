@@ -15,5 +15,5 @@ data
 training_text.txt
 /MathBERT_finetune
 model*
-*.model
+weight.model
 *.pt
