@@ -1,4 +1,4 @@
-# Math Question Multi-Label Classification
+# Math Problem Multi-Label Classification
 
 A multi-label text classifier that automatically tags mathematics problems with one or more of four core areas: **Algebra**, **Geometry**, **Number Theory**, and **Combinatorics**.
 
@@ -36,4 +36,4 @@ Evaluated across per-label accuracy, sample-averaged Jaccard similarity, and F1 
 
 ### Key Takeaway
 
-All three models show nearly identical performance. Even with specialized pretraining, MathBERT fails to pull ahead of XGBoost or LSTM, indicating a data bottleneck rather than a modeling limitation. A quick error analysis confirmed frequent mislabeling and overlapping categories in the dataset (for instance, problems that mix modular arithmetic with algebraic manipulation). Because dirty data sets the ceiling here, XGBoost is the most sensible pick for production due to its minimal compute cost.
+All three models show nearly identical performance. Even with specialized pretraining, MathBERT fails to pull ahead of XGBoost or LSTM, indicating a data bottleneck rather than a modeling limitation. A quick error analysis confirmed frequent mislabeling. 
